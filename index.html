@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-calculator"></i> Tax Management System</h1>
+            <p>Efficiently manage your business expenses and documentation</p>
+            <div class="header-buttons">
+                <a href="telephone-internet/index.html" class="btn btn-primary">
+                    <i class="fas fa-phone"></i> Telecom Bills
+                </a>
+                <a href="car-hire/index.html" class="btn btn-primary">
+                    <i class="fas fa-car"></i> Car Hire Bills
+                </a>
+                <a href="driver-salary/index.html" class="btn btn-primary">
+                    <i class="fas fa-user-tie"></i> Driver Salary
+                </a>
+                <a href="fuel-bills/index.html" class="btn btn-primary">
+                    <i class="fas fa-gas-pump"></i> Fuel Bills
+                </a>
+                <a href="tax-calculator/index.html" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Tax Calculator
+                </a>
+                <a href="tax-filing/index.html" class="btn btn-primary">
+                    <i class="fas fa-file-invoice-dollar"></i> Tax Filing
+                </a>
+            </div>
+        </header>
+
+        <!-- Home Content -->
+        <div class="tab-content">
+            <div class="welcome-section">
+                <h2>Welcome to Tax Management System</h2>
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="window.location.href='telephone-internet/index.html'" style="cursor: pointer;">
+                        <i class="fas fa-phone"></i>
+                        <h3>Telephone & Internet Bills</h3>
+                        <p>Generate professional telecom bills for mobile, landline, and internet services.</p>
+                    </div>
+                    <div class="feature-card" onclick="window.location.href='car-hire/index.html'" style="cursor: pointer;">
+                        <i class="fas fa-car"></i>
+                        <h3>Car Hire Bills</h3>
+                        <p>Generate professional car rental invoices with automatic calculations and GST.</p>
+                    </div>
+                    <div class="feature-card" onclick="window.location.href='driver-salary/index.html'" style="cursor: pointer;">
+                        <i class="fas fa-user-tie"></i>
+                        <h3>Driver Salary Tracking</h3>
+                        <p>Manage driver salaries, generate payslips, and download salary reports as PDFs.</p>
+                    </div>
+                    <div class="feature-card" onclick="window.location.href='fuel-bills/index.html'" style="cursor: pointer;">
+                        <i class="fas fa-gas-pump"></i>
+                        <h3>Fuel Bill Management</h3>
+                        <p>Track and manage all your fuel expenses with detailed reports and PDF downloads.</p>
+                    </div>
+                    <div class="feature-card" onclick="window.location.href='tax-calculator/index.html'" style="cursor: pointer;">
+                        <i class="fas fa-calculator"></i>
+                        <h3>Tax Calculator</h3>
+                        <p>Calculate income tax, GST, and other taxes with detailed breakdowns.</p>
+                    </div>
+                    <div class="feature-card" onclick="window.location.href='tax-filing/index.html'" style="cursor: pointer;">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <h3>Tax Filing & Consultation</h3>
+                        <p>Professional tax filing services and consultation for individuals and businesses.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Expense Analytics</h3>
+                        <p>Get insights into your spending patterns and optimize your business expenses.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-file-pdf"></i>
+                        <h3>PDF Reports</h3>
+                        <p>Generate professional PDF reports for all your business documentation needs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

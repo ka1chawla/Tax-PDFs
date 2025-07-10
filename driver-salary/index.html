@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Salary Management - Tax Management System</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-user-tie"></i> Driver Salary Management</h1>
+            <p>Manage driver salaries, generate payslips, and download salary reports as PDFs.</p>
+            <div class="header-buttons">
+                <a href="../index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a href="../telephone-internet/index.html" class="btn btn-primary">
+                    <i class="fas fa-phone"></i> Telecom Bills
+                </a>
+                <a href="../car-hire/index.html" class="btn btn-primary">
+                    <i class="fas fa-car"></i> Car Hire Bills
+                </a>
+                <a href="../fuel-bills/index.html" class="btn btn-primary">
+                    <i class="fas fa-gas-pump"></i> Fuel Bills
+                </a>
+                <a href="../tax-calculator/index.html" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Tax Calculator
+                </a>
+                <a href="../tax-filing/index.html" class="btn btn-primary">
+                    <i class="fas fa-file-invoice-dollar"></i> Tax Filing
+                </a>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2><i class="fas fa-user-tie"></i> Driver Salary Management</h2>
+            <button class="btn btn-primary" onclick="addSalaryEntry()">
+                <i class="fas fa-plus"></i> Add New Entry
+            </button>
+        </div>
+
+        <div class="form-section">
+            <form id="salaryForm" class="form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salaryDate">Date:</label>
+                        <input type="date" id="salaryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="driverName">Driver Name:</label>
+                        <input type="text" id="driverName" placeholder="Driver name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="basicSalary">Basic Salary (₹):</label>
+                        <input type="number" id="basicSalary" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="allowances">Allowances (₹):</label>
+                        <input type="number" id="allowances" step="0.01" placeholder="0.00" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="deductions">Deductions (₹):</label>
+                        <input type="number" id="deductions" step="0.01" placeholder="0.00" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="netSalary">Net Salary (₹):</label>
+                        <input type="number" id="netSalary" step="0.01" placeholder="0.00" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="salaryNotes">Notes:</label>
+                    <textarea id="salaryNotes" placeholder="Additional notes..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Entry
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearSalaryForm()">
+                        <i class="fas fa-eraser"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="data-section">
+            <div class="section-header">
+                <h3>Salary Entries</h3>
+                <button class="btn btn-primary" onclick="downloadSalaryPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div id="salaryEntries" class="entries-list">
+                <!-- Salary entries will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html> 

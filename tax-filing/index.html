@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Filing & Consultation - Tax Management System</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-file-invoice-dollar"></i> Tax Filing & Consultation</h1>
+            <p>Professional tax filing services and consultation for individuals and businesses.</p>
+            <div class="header-buttons">
+                <a href="../index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a href="../telephone-internet/index.html" class="btn btn-primary">
+                    <i class="fas fa-phone"></i> Telecom Bills
+                </a>
+                <a href="../car-hire/index.html" class="btn btn-primary">
+                    <i class="fas fa-car"></i> Car Hire Bills
+                </a>
+                <a href="../driver-salary/index.html" class="btn btn-primary">
+                    <i class="fas fa-user-tie"></i> Driver Salary
+                </a>
+                <a href="../fuel-bills/index.html" class="btn btn-primary">
+                    <i class="fas fa-gas-pump"></i> Fuel Bills
+                </a>
+                <a href="../tax-calculator/index.html" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Tax Calculator
+                </a>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Tax Filing & Consultation Services</h2>
+            <p class="section-subtitle">Professional tax filing services and consultation.</p>
+        </div>
+
+        <div class="fuel-content">
+            <div class="form-section">
+                <form id="taxFilingForm" class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultantName">Consultant/CA Name:</label>
+                            <input type="text" id="consultantName" placeholder="Enter consultant name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="consultantAddress">Consultant Address:</label>
+                            <input type="text" id="consultantAddress" placeholder="Enter consultant address" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gstNumber">GST Number:</label>
+                            <input type="text" id="gstNumber" placeholder="Enter GST number">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactNumber">Contact Number:</label>
+                            <input type="text" id="contactNumber" placeholder="Enter contact number">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoiceNumber">Invoice Number:</label>
+                            <input type="text" id="invoiceNumber" placeholder="Auto-generated" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceDate">Service Date:</label>
+                            <input type="date" id="serviceDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceType">Service Type:</label>
+                            <select id="serviceType" required>
+                                <option value="Income Tax Filing" selected>Income Tax Filing</option>
+                                <option value="GST Filing">GST Filing</option>
+                                <option value="Tax Consultation">Tax Consultation</option>
+                                <option value="Tax Planning">Tax Planning</option>
+                                <option value="Audit Services">Audit Services</option>
+                                <option value="Business Registration">Business Registration</option>
+                                <option value="Compliance Services">Compliance Services</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="assessmentYear">Assessment Year:</label>
+                            <input type="text" id="assessmentYear" placeholder="e.g., 2024-25" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultationHours">Consultation Hours:</label>
+                            <input type="number" id="consultationHours" step="0.5" placeholder="0.0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hourlyRate">Hourly Rate (₹):</label>
+                            <input type="number" id="hourlyRate" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subtotal">Subtotal (₹):</label>
+                            <input type="number" id="subtotal" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="gstAmount">GST Amount (₹):</label>
+                            <input type="number" id="gstAmount" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totalAmount">Total Amount (₹):</label>
+                            <input type="number" id="totalAmount" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMode">Payment Mode:</label>
+                            <select id="paymentMode" required>
+                                <option value="Online" selected>Online</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientName">Client Name:</label>
+                            <input type="text" id="clientName" placeholder="Enter client name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientAddress">Client Address:</label>
+                            <input type="text" id="clientAddress" placeholder="Enter client address" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="panNumber">PAN Number:</label>
+                            <input type="text" id="panNumber" placeholder="Enter PAN number" value="N/A">
+                        </div>
+                        <div class="form-group">
+                            <label for="aadharNumber">Aadhar Number:</label>
+                            <input type="text" id="aadharNumber" placeholder="Enter Aadhar number" value="N/A">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="serviceDescription">Service Description:</label>
+                        <textarea id="serviceDescription" placeholder="Describe the services provided..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearTaxFilingForm()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Section -->
+            <div id="previewSection" class="preview-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-eye"></i> Invoice Preview</h3>
+                    <button class="btn btn-primary" onclick="downloadTaxFilingPreviewPDF()">
+                        <i class="fas fa-download"></i> Download Invoice
+                    </button>
+                </div>
+                <div id="billPreview" class="bill-preview">
+                    <div class="empty-preview">
+                        <i class="fas fa-receipt"></i>
+                        <h4>Invoice Preview</h4>
+                        <p>Fill in the form to see a preview of your tax consultation invoice</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html> 

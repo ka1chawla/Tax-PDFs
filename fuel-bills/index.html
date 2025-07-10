@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Bill Generator - Tax Management System</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-gas-pump"></i> Fuel Bill Generator</h1>
+            <p>Generate professional fuel bills for tax savings. No login required.</p>
+            <div class="header-buttons">
+                <a href="../index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a href="../telephone-internet/index.html" class="btn btn-primary">
+                    <i class="fas fa-phone"></i> Telecom Bills
+                </a>
+                <a href="../car-hire/index.html" class="btn btn-primary">
+                    <i class="fas fa-car"></i> Car Hire Bills
+                </a>
+                <a href="../driver-salary/index.html" class="btn btn-primary">
+                    <i class="fas fa-user-tie"></i> Driver Salary
+                </a>
+                <a href="../tax-calculator/index.html" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Tax Calculator
+                </a>
+                <a href="../tax-filing/index.html" class="btn btn-primary">
+                    <i class="fas fa-file-invoice-dollar"></i> Tax Filing
+                </a>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2><i class="fas fa-gas-pump"></i> Fuel Bill Generator</h2>
+            <p class="section-subtitle">Professional fuel bill generation for tax savings.</p>
+        </div>
+
+        <div class="fuel-content">
+            <div class="form-section">
+                <form id="fuelForm" class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fuelStation">Fuel Station Name:</label>
+                            <input type="text" id="fuelStation" placeholder="Enter fuel station name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fuelAddress">Address:</label>
+                            <input type="text" id="fuelAddress" placeholder="Enter station address" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cstNumber">CST Number:</label>
+                            <input type="text" id="cstNumber" placeholder="Enter CST number">
+                        </div>
+                        <div class="form-group">
+                            <label for="telNumber">Tel No:</label>
+                            <input type="text" id="telNumber" placeholder="Enter telephone number">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="receiptNumber">Receipt No:</label>
+                            <input type="text" id="receiptNumber" placeholder="Auto-generated" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="nozzleNumber">Nozzle No:</label>
+                            <input type="text" id="nozzleNumber" placeholder="Enter nozzle number" value="1">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product">Product:</label>
+                            <select id="product" required>
+                                <option value="Petrol" selected>Petrol</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="CNG">CNG</option>
+                                <option value="LPG">LPG</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ratePerLiter">Rate/Ltr (₹):</label>
+                            <input type="number" id="ratePerLiter" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fuelAmount">Amount (₹):</label>
+                            <input type="number" id="fuelAmount" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fuelLiters">Litres:</label>
+                            <input type="number" id="fuelLiters" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicleType">Vehicle Type:</label>
+                            <select id="vehicleType" required>
+                                <option value="Car" selected>Car</option>
+                                <option value="Bike">Bike</option>
+                                <option value="Truck">Truck</option>
+                                <option value="Bus">Bus</option>
+                                <option value="Van">Van</option>
+                                <option value="SUV">SUV</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleNumber">Vehicle No:</label>
+                            <input type="text" id="vehicleNumber" placeholder="Enter vehicle number" value="N/A">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerName">Customer Name:</label>
+                            <input type="text" id="customerName" placeholder="Enter customer name" value="N/A">
+                        </div>
+                        <div class="form-group">
+                            <label for="fuelDate">Date:</label>
+                            <input type="date" id="fuelDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="paymentMode">Mode:</label>
+                            <select id="paymentMode" required>
+                                <option value="Cash" selected>Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Digital">Digital</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="attendantId">Attendant ID:</label>
+                            <input type="text" id="attendantId" placeholder="Enter attendant ID" value="not available">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearFuelForm()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Section -->
+            <div id="previewSection" class="preview-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-eye"></i> Bill Preview</h3>
+                    <button class="btn btn-primary" onclick="downloadPreviewPDF()">
+                        <i class="fas fa-download"></i> Download Bill
+                    </button>
+                </div>
+                <div id="billPreview" class="bill-preview">
+                    <div class="empty-preview">
+                        <i class="fas fa-receipt"></i>
+                        <h4>Bill Preview</h4>
+                        <p>Fill in the form to see a preview of your fuel bill</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html> 

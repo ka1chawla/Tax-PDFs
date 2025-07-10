@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Hire Bill Generator - Tax Management System</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-car"></i> Car Hire Bill Generator</h1>
+            <p>Generate professional car hire bills for tax savings. No login required.</p>
+            <div class="header-buttons">
+                <a href="../index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a href="../telephone-internet/index.html" class="btn btn-primary">
+                    <i class="fas fa-phone"></i> Telecom Bills
+                </a>
+                <a href="../driver-salary/index.html" class="btn btn-primary">
+                    <i class="fas fa-user-tie"></i> Driver Salary
+                </a>
+                <a href="../fuel-bills/index.html" class="btn btn-primary">
+                    <i class="fas fa-gas-pump"></i> Fuel Bills
+                </a>
+                <a href="../tax-calculator/index.html" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Tax Calculator
+                </a>
+                <a href="../tax-filing/index.html" class="btn btn-primary">
+                    <i class="fas fa-file-invoice-dollar"></i> Tax Filing
+                </a>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2><i class="fas fa-car"></i> Car Hire Bill Generator</h2>
+            <p class="section-subtitle">Professional car hire bill generation for tax savings.</p>
+        </div>
+
+        <div class="fuel-content">
+            <div class="form-section">
+                <form id="carHireForm" class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rentalCompany">Rental Company:</label>
+                            <input type="text" id="rentalCompany" placeholder="Enter rental company name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyAddress">Company Address:</label>
+                            <input type="text" id="companyAddress" placeholder="Enter company address" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gstNumber">GST Number:</label>
+                            <input type="text" id="gstNumber" placeholder="Enter GST number">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactNumber">Contact Number:</label>
+                            <input type="text" id="contactNumber" placeholder="Enter contact number">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="invoiceNumber">Invoice Number:</label>
+                            <input type="text" id="invoiceNumber" placeholder="Auto-generated" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleNumber">Vehicle Number:</label>
+                            <input type="text" id="vehicleNumber" placeholder="Enter vehicle number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicleModel">Vehicle Model:</label>
+                            <input type="text" id="vehicleModel" placeholder="Enter vehicle model" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleType">Vehicle Type:</label>
+                            <select id="vehicleType" required>
+                                <option value="Sedan" selected>Sedan</option>
+                                <option value="SUV">SUV</option>
+                                <option value="Hatchback">Hatchback</option>
+                                <option value="Luxury">Luxury</option>
+                                <option value="Van">Van</option>
+                                <option value="Tempo">Tempo</option>
+                                <option value="Bus">Bus</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rentalDate">Rental Date:</label>
+                            <input type="date" id="rentalDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="returnDate">Return Date:</label>
+                            <input type="date" id="returnDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dailyRate">Daily Rate (₹):</label>
+                            <input type="number" id="dailyRate" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numberOfDays">Number of Days:</label>
+                            <input type="number" id="numberOfDays" placeholder="0" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subtotal">Subtotal (₹):</label>
+                            <input type="number" id="subtotal" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="gstAmount">GST Amount (₹):</label>
+                            <input type="number" id="gstAmount" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totalAmount">Total Amount (₹):</label>
+                            <input type="number" id="totalAmount" step="0.01" placeholder="0.00" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMode">Payment Mode:</label>
+                            <select id="paymentMode" required>
+                                <option value="Cash" selected>Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Online">Online</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerName">Customer Name:</label>
+                            <input type="text" id="customerName" placeholder="Enter customer name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerAddress">Customer Address:</label>
+                            <input type="text" id="customerAddress" placeholder="Enter customer address" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="driverName">Driver Name:</label>
+                            <input type="text" id="driverName" placeholder="Enter driver name" value="Self">
+                        </div>
+                        <div class="form-group">
+                            <label for="licenseNumber">License Number:</label>
+                            <input type="text" id="licenseNumber" placeholder="Enter license number" value="N/A">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearCarHireForm()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Section -->
+            <div id="previewSection" class="preview-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-eye"></i> Bill Preview</h3>
+                    <button class="btn btn-primary" onclick="downloadCarHirePreviewPDF()">
+                        <i class="fas fa-download"></i> Download Bill
+                    </button>
+                </div>
+                <div id="billPreview" class="bill-preview">
+                    <div class="empty-preview">
+                        <i class="fas fa-receipt"></i>
+                        <h4>Bill Preview</h4>
+                        <p>Fill in the form to see a preview of your car hire bill</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html> 
