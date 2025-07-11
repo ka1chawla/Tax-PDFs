@@ -1036,7 +1036,7 @@ function generateSalaryReceiptPDF(doc, data) {
     //     yPos += 8;
     // });
 
-    yPos += 20;
+    // yPos += 20;
 
     // Details
     doc.setFontSize(12);
