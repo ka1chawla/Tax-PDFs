@@ -282,6 +282,7 @@ function updateSalaryReceipt() {
 
 function getSalaryFormData() {
     return {
+        employerName: document.getElementById('employerName').value || 'Employer Name',
         driverName: document.getElementById('driverName').value || 'Driver Name',
         dlNumber: document.getElementById('dlNumber').value || 'DL Number',
         carNumber: document.getElementById('carNumber').value || 'Car Number',
@@ -1023,17 +1024,17 @@ function generateSalaryReceiptPDF(doc, data) {
     // Receipt text
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    const receiptText = `Received with thanks from ${data.driverName} INR ₹${data.salaryAmount.toFixed(2)} cash as a remuneration for Driving Car No. ${data.carNumber} for the month of ${data.monthYear}.`;
+    const receiptText = `Received with thanks from ${data.employerName} INR ₹${data.salaryAmount.toFixed(2)} cash as a remuneration for Driving Car No. ${data.carNumber} for the month of ${data.monthYear}.`;
 
     // Split text into lines that fit the page width
-    const maxWidth = pageWidth - 40;
-    const lines = doc.splitTextToSize(receiptText, maxWidth);
-    let yPos = 60;
-
-    lines.forEach(line => {
-        doc.text(line, 20, yPos);
-        yPos += 8;
-    });
+    // const maxWidth = pageWidth - 40;
+    // const lines = doc.splitTextToSize(receiptText, maxWidth);
+    // let yPos = 60;
+    //
+    // lines.forEach(line => {
+    //     doc.text(line, 20, yPos);
+    //     yPos += 8;
+    // });
 
     yPos += 20;
 
@@ -1089,9 +1090,9 @@ function generateSalaryReceiptPDF(doc, data) {
         console.log('Stamp image not found');
     };
 
-    doc.rect(pageWidth - 80, yPos + 10, 40, 30);
-    doc.setFontSize(8);
-    doc.text('STAMP', pageWidth - 60, yPos + 25, { align: 'center' });
+    // doc.rect(pageWidth - 80, yPos + 10, 40, 30);
+    // doc.setFontSize(8);
+    // doc.text('STAMP', pageWidth - 60, yPos + 25, { align: 'center' });
 }
 
 async function downloadTelecomPreviewPDF() {
