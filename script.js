@@ -298,22 +298,22 @@ function generateSalaryReceipt(data) {
         
         <div class="bill-section" style="margin-bottom: 20px;">
             <div class="bill-row" style="text-align: justify; line-height: 1.6;">
-                <span>Received with thanks from <strong>${data.driverName}</strong> INR <strong>₹${data.salaryAmount.toFixed(2)}</strong> cash as a remuneration for Driving Car No. <strong>${data.carNumber}</strong> for the month of <strong>${data.monthYear}</strong>.</span>
+                <span>Received with thanks from <strong>${data.employerName}</strong> INR <strong>₹${data.salaryAmount.toFixed(2)}</strong> cash as a remuneration for Driving Car No. <strong>${data.carNumber}</strong> for the month of <strong>${data.monthYear}</strong>.</span>
             </div>
         </div>
         
         <div class="bill-section">
             <div class="bill-row">
-                <span class="bill-label">Name:</span>
-                <span class="bill-value">${data.driverName}</span>
+                <span class="bill-label">Name: ${data.driverName}</span>
+<!--                <span class="bill-value">${data.driverName}</span>-->
             </div>
             <div class="bill-row">
-                <span class="bill-label">DL No:</span>
-                <span class="bill-value">${data.dlNumber}</span>
+                <span class="bill-label">DL No: ${data.dlNumber}</span>
+<!--                <span class="bill-value">${data.dlNumber}</span>-->
             </div>
             <div class="bill-row">
-                <span class="bill-label">Date:</span>
-                <span class="bill-value">${formatDate(data.receiptDate)}</span>
+                <span class="bill-label">Date: ${formatDate(data.receiptDate)}</span>
+<!--                <span class="bill-value">${formatDate(data.receiptDate)}</span>-->
             </div>
         </div>
         
@@ -327,7 +327,7 @@ function generateSalaryReceipt(data) {
                 <div style="text-align: center;">
                     <p style="margin-bottom: 10px;">Affix Revenue Stamp</p>
                     <img src="revenueStamp.jpg" alt="Revenue Stamp" style="max-width: 80px; max-height: 60px; object-fit: contain;" onerror="this.style.display='none'" onload="this.style.display='block'">
-                    <div style="border: 1px solid #000; width: 80px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 8px; margin-top: 5px;">STAMP</div>
+<!--                    <div style="border: 1px solid #000; width: 80px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 8px; margin-top: 5px;">STAMP</div>-->
                 </div>
             </div>
         </div>
