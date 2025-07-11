@@ -1029,14 +1029,14 @@ function generateSalaryReceiptPDF(doc, data) {
     // Split text into lines that fit the page width
     // const maxWidth = pageWidth - 40;
     // const lines = doc.splitTextToSize(receiptText, maxWidth);
-    // let yPos = 60;
+    let yPos = 60;
     //
     // lines.forEach(line => {
     //     doc.text(line, 20, yPos);
     //     yPos += 8;
     // });
 
-    // yPos += 20;
+    yPos += 20;
 
     // Details
     doc.setFontSize(12);
