@@ -1021,20 +1021,36 @@ function generateSalaryReceiptPDF(doc, data) {
     doc.setLineWidth(0.5);
     doc.line((pageWidth - textWidth) / 2, 35, (pageWidth + textWidth) / 2, 35);
 
-    // Receipt text
+    // Receipt text - Fixed to avoid extra spaces
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     const receiptText = `Received with thanks from ${data.employerName} INR ₹${data.salaryAmount.toFixed(2)} cash as a remuneration for Driving Car No. ${data.carNumber} for the month of ${data.monthYear}.`;
 
-    // Split text into lines that fit the page width
-    // const maxWidth = pageWidth - 40;
-    // const lines = doc.splitTextToSize(receiptText, maxWidth);
+    // Use a simpler approach to handle text wrapping without extra spaces
+    const maxWidth = pageWidth - 40;
+    const words = receiptText.split(' ');
+    let currentLine = '';
     let yPos = 60;
-    //
-    // lines.forEach(line => {
-    //     doc.text(line, 20, yPos);
-    //     yPos += 8;
-    // });
+    
+    for (let i = 0; i < words.length; i++) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + words[i];
+        const testWidth = doc.getTextWidth(testLine);
+        
+        if (testWidth > maxWidth && currentLine !== '') {
+            // Draw the current line and start a new one
+            doc.text(currentLine, 20, yPos, { align: 'left' });
+            yPos += 8;
+            currentLine = words[i];
+        } else {
+            currentLine = testLine;
+        }
+    }
+    
+    // Draw the last line
+    if (currentLine) {
+        doc.text(currentLine, 20, yPos, { align: 'left' });
+        yPos += 8;
+    }
 
     yPos += 20;
 
