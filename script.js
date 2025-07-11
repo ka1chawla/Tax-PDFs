@@ -5,32 +5,37 @@ let salaryEntries = JSON.parse(localStorage.getItem('salaryEntries')) || [];
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
-    
+
     // Only render salary entries if we're on the salary page
     if (document.getElementById('salaryEntries')) {
         renderSalaryEntries();
     }
-    
+
+    // Only show salary receipt if we're on the salary page
+    if (document.getElementById('salaryReceipt')) {
+        updateSalaryReceipt();
+    }
+
     // Only show preview if we're on the fuel page
     if (document.getElementById('billPreview')) {
         updatePreview();
     }
-    
+
     // Only show telecom preview if we're on the telecom page
     if (document.getElementById('billPreview') && document.getElementById('telecomForm')) {
         updateTelecomPreview();
     }
-    
+
     // Only show car hire preview if we're on the car hire page
     if (document.getElementById('billPreview') && document.getElementById('carHireForm')) {
         updateCarHirePreview();
     }
-    
+
     // Only show tax filing preview if we're on the tax filing page
     if (document.getElementById('billPreview') && document.getElementById('taxFilingForm')) {
         updateTaxFilingPreview();
     }
-    
+
     // Only show tax calculator results if we're on the tax calculator page
     if (document.getElementById('taxResults') && document.getElementById('taxCalculatorForm')) {
         updateTaxCalculatorResults();
@@ -41,39 +46,45 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Set up fuel form if it exists
     const fuelDate = document.getElementById('fuelDate');
     if (fuelDate) {
         fuelDate.value = today;
     }
-    
+
     // Set up salary form if it exists
     const salaryDate = document.getElementById('salaryDate');
     if (salaryDate) {
         salaryDate.value = today;
     }
-    
+
+    // Set up receipt date if it exists
+    const receiptDate = document.getElementById('receiptDate');
+    if (receiptDate) {
+        receiptDate.value = today;
+    }
+
     // Set up salary calculation if on salary page
-    if (document.getElementById('basicSalary')) {
+    if (document.getElementById('salaryAmount')) {
         setupSalaryCalculation();
     }
-    
+
     // Generate initial random receipt number if on fuel page
     if (document.getElementById('receiptNumber')) {
         generateRandomReceiptNumber();
     }
-    
+
     // Generate initial random bill number if on telecom page
     if (document.getElementById('billNumber')) {
         generateRandomBillNumber();
     }
-    
+
     // Generate initial random invoice number if on car hire page
     if (document.getElementById('invoiceNumber')) {
         generateRandomInvoiceNumber();
     }
-    
+
     // Generate initial random invoice number if on tax filing page
     if (document.getElementById('invoiceNumber') && document.getElementById('taxFilingForm')) {
         generateRandomTaxInvoiceNumber();
@@ -119,7 +130,7 @@ function setupEventListeners() {
     const basicSalary = document.getElementById('basicSalary');
     const allowances = document.getElementById('allowances');
     const deductions = document.getElementById('deductions');
-    
+
     if (basicSalary) {
         basicSalary.addEventListener('input', calculateNetSalary);
     }
@@ -130,10 +141,17 @@ function setupEventListeners() {
         deductions.addEventListener('input', calculateNetSalary);
     }
 
+    // Driver salary receipt listeners
+    const salaryFormInputs = document.querySelectorAll('#salaryForm input, #salaryForm select');
+    salaryFormInputs.forEach(input => {
+        input.addEventListener('input', updateSalaryReceipt);
+        input.addEventListener('change', updateSalaryReceipt);
+    });
+
     // Fuel calculation listeners
     const fuelAmount = document.getElementById('fuelAmount');
     const ratePerLiter = document.getElementById('ratePerLiter');
-    
+
     if (fuelAmount) {
         fuelAmount.addEventListener('input', calculateFuelLiters);
     }
@@ -147,32 +165,32 @@ function setupEventListeners() {
         input.addEventListener('input', updatePreview);
         input.addEventListener('change', updatePreview);
     });
-    
+
     // Telecom form event listeners
     const telecomFormInputs = document.querySelectorAll('#telecomForm input, #telecomForm select');
     telecomFormInputs.forEach(input => {
         input.addEventListener('input', updateTelecomPreview);
         input.addEventListener('change', updateTelecomPreview);
     });
-    
+
     // Telecom calculation listeners
     const billAmount = document.getElementById('billAmount');
     if (billAmount) {
         billAmount.addEventListener('input', calculateTelecomAmounts);
     }
-    
+
     // Car hire form event listeners
     const carHireFormInputs = document.querySelectorAll('#carHireForm input, #carHireForm select');
     carHireFormInputs.forEach(input => {
         input.addEventListener('input', updateCarHirePreview);
         input.addEventListener('change', updateCarHirePreview);
     });
-    
+
     // Car hire calculation listeners
     const rentalDate = document.getElementById('rentalDate');
     const returnDate = document.getElementById('returnDate');
     const dailyRate = document.getElementById('dailyRate');
-    
+
     if (rentalDate) {
         rentalDate.addEventListener('change', calculateCarHireAmounts);
     }
@@ -182,32 +200,32 @@ function setupEventListeners() {
     if (dailyRate) {
         dailyRate.addEventListener('input', calculateCarHireAmounts);
     }
-    
+
     // Tax filing form event listeners
     const taxFilingFormInputs = document.querySelectorAll('#taxFilingForm input, #taxFilingForm select, #taxFilingForm textarea');
     taxFilingFormInputs.forEach(input => {
         input.addEventListener('input', updateTaxFilingPreview);
         input.addEventListener('change', updateTaxFilingPreview);
     });
-    
+
     // Tax filing calculation listeners
     const consultationHours = document.getElementById('consultationHours');
     const hourlyRate = document.getElementById('hourlyRate');
-    
+
     if (consultationHours) {
         consultationHours.addEventListener('input', calculateTaxFilingAmounts);
     }
     if (hourlyRate) {
         hourlyRate.addEventListener('input', calculateTaxFilingAmounts);
     }
-    
+
     // Tax calculator form event listeners
     const taxCalculatorFormInputs = document.querySelectorAll('#taxCalculatorForm input, #taxCalculatorForm select');
     taxCalculatorFormInputs.forEach(input => {
         input.addEventListener('input', updateTaxCalculatorResults);
         input.addEventListener('change', updateTaxCalculatorResults);
     });
-    
+
     // Tax type change listener
     const taxType = document.getElementById('taxType');
     if (taxType) {
@@ -242,44 +260,77 @@ function addSalaryEntry() {
 }
 
 function setupSalaryCalculation() {
-    calculateNetSalary();
-}
-
-function calculateNetSalary() {
-    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
-    const allowances = parseFloat(document.getElementById('allowances').value) || 0;
-    const deductions = parseFloat(document.getElementById('deductions').value) || 0;
-    
-    const netSalary = basicSalary + allowances - deductions;
-    document.getElementById('netSalary').value = netSalary.toFixed(2);
+    updateSalaryReceipt();
 }
 
 function saveSalaryEntry() {
-    const formData = {
-        id: Date.now(),
-        date: document.getElementById('salaryDate').value,
-        driverName: document.getElementById('driverName').value,
-        basicSalary: parseFloat(document.getElementById('basicSalary').value),
-        allowances: parseFloat(document.getElementById('allowances').value) || 0,
-        deductions: parseFloat(document.getElementById('deductions').value) || 0,
-        netSalary: parseFloat(document.getElementById('netSalary').value),
-        notes: document.getElementById('salaryNotes').value
-    };
-
-    salaryEntries.push(formData);
-    localStorage.setItem('salaryEntries', JSON.stringify(salaryEntries));
-    
-    renderSalaryEntries();
-    clearSalaryForm();
-    showMessage('Salary entry saved successfully!', 'success');
+    updateSalaryReceipt();
+    showMessage('Salary receipt generated successfully!', 'success');
 }
 
 function clearSalaryForm() {
     document.getElementById('salaryForm').reset();
-    document.getElementById('salaryDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('allowances').value = '0';
-    document.getElementById('deductions').value = '0';
-    calculateNetSalary();
+    document.getElementById('receiptDate').value = new Date().toISOString().split('T')[0];
+    updateSalaryReceipt();
+}
+
+function updateSalaryReceipt() {
+    const formData = getSalaryFormData();
+    const receiptHtml = generateSalaryReceipt(formData);
+    document.getElementById('salaryReceipt').innerHTML = receiptHtml;
+}
+
+function getSalaryFormData() {
+    return {
+        driverName: document.getElementById('driverName').value || 'Driver Name',
+        dlNumber: document.getElementById('dlNumber').value || 'DL Number',
+        carNumber: document.getElementById('carNumber').value || 'Car Number',
+        monthYear: document.getElementById('monthYear').value || 'Month Year',
+        salaryAmount: parseFloat(document.getElementById('salaryAmount').value) || 0,
+        receiptDate: document.getElementById('receiptDate').value || new Date().toISOString().split('T')[0]
+    };
+}
+
+function generateSalaryReceipt(data) {
+    return `
+        <div class="bill-header" style="text-decoration: underline; margin-bottom: 20px;">DRIVER SALARY RECEIPT</div>
+        
+        <div class="bill-section" style="margin-bottom: 20px;">
+            <div class="bill-row" style="text-align: justify; line-height: 1.6;">
+                <span>Received with thanks from <strong>${data.driverName}</strong> INR <strong>₹${data.salaryAmount.toFixed(2)}</strong> cash as a remuneration for Driving Car No. <strong>${data.carNumber}</strong> for the month of <strong>${data.monthYear}</strong>.</span>
+            </div>
+        </div>
+        
+        <div class="bill-section">
+            <div class="bill-row">
+                <span class="bill-label">Name:</span>
+                <span class="bill-value">${data.driverName}</span>
+            </div>
+            <div class="bill-row">
+                <span class="bill-label">DL No:</span>
+                <span class="bill-value">${data.dlNumber}</span>
+            </div>
+            <div class="bill-row">
+                <span class="bill-label">Date:</span>
+                <span class="bill-value">${formatDate(data.receiptDate)}</span>
+            </div>
+        </div>
+        
+        <div class="bill-footer" style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="text-align: center;">
+                    <p style="margin-bottom: 10px;">Sign of Driver</p>
+                    <img src="sign.jpg" alt="Driver Signature" style="max-width: 150px; max-height: 60px; object-fit: contain;" onerror="this.style.display='none'" onload="this.style.display='block'">
+                    <div style="border-bottom: 1px solid #000; width: 150px; height: 1px; margin-top: 5px;"></div>
+                </div>
+                <div style="text-align: center;">
+                    <p style="margin-bottom: 10px;">Affix Revenue Stamp</p>
+                    <img src="revenueStamp.jpg" alt="Revenue Stamp" style="max-width: 80px; max-height: 60px; object-fit: contain;" onerror="this.style.display='none'" onload="this.style.display='block'">
+                    <div style="border: 1px solid #000; width: 80px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 8px; margin-top: 5px;">STAMP</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function deleteSalaryEntry(id) {
@@ -293,7 +344,7 @@ function deleteSalaryEntry(id) {
 
 function renderSalaryEntries() {
     const container = document.getElementById('salaryEntries');
-    
+
     if (salaryEntries.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -353,18 +404,18 @@ function showMessage(message, type) {
     // Remove existing messages
     const existingMessages = document.querySelectorAll('.message');
     existingMessages.forEach(msg => msg.remove());
-    
+
     // Create new message
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     messageDiv.textContent = message;
-    
+
     // Insert at the top of the page content
     const container = document.querySelector('.container');
     if (container) {
         container.insertBefore(messageDiv, container.firstChild);
     }
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (messageDiv.parentNode) {
@@ -377,7 +428,7 @@ function showMessage(message, type) {
 function calculateFuelLiters() {
     const amount = parseFloat(document.getElementById('fuelAmount').value) || 0;
     const rate = parseFloat(document.getElementById('ratePerLiter').value) || 0;
-    
+
     if (rate > 0) {
         const litres = amount / rate;
         document.getElementById('fuelLiters').value = litres.toFixed(2);
@@ -390,11 +441,11 @@ function calculateFuelLiters() {
 function previewFuelBill() {
     const formData = getFuelFormData();
     if (!formData) return;
-    
+
     const previewHtml = generateBillPreview(formData);
     document.getElementById('billPreview').innerHTML = previewHtml;
     document.getElementById('previewSection').style.display = 'block';
-    
+
     // Scroll to preview
     document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
 }
@@ -402,7 +453,7 @@ function previewFuelBill() {
 function getFuelFormData() {
     const amount = parseFloat(document.getElementById('fuelAmount').value) || 0;
     const rate = parseFloat(document.getElementById('ratePerLiter').value) || 0;
-    
+
     // Return default data even when form is empty
     return {
         station: document.getElementById('fuelStation').value || 'BP FUEL STATION',
@@ -534,19 +585,19 @@ function generateBillPreview(data) {
 async function downloadPreviewPDF() {
     const formData = getFuelFormData();
     if (!formData) return;
-    
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     // Set page dimensions
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    
+
     try {
         // Add logo with better error handling
         const logo = new Image();
         logo.crossOrigin = 'anonymous';
-        
+
         await new Promise((resolve, reject) => {
             logo.onload = () => {
                 try {
@@ -555,14 +606,14 @@ async function downloadPreviewPDF() {
                     const maxHeight = 35;
                     let logoWidth = logo.width;
                     let logoHeight = logo.height;
-                    
+
                     // Scale down if too large
                     if (logoWidth > maxWidth || logoHeight > maxHeight) {
                         const ratio = Math.min(maxWidth / logoWidth, maxHeight / logoHeight);
                         logoWidth *= ratio;
                         logoHeight *= ratio;
                     }
-                    
+
                     // Center the logo above the station name
                     const logoX = 25 ;
                     const logoY = 15; // Position logo above station name
@@ -577,128 +628,128 @@ async function downloadPreviewPDF() {
                 console.log('Logo not found or CORS blocked, continuing without logo');
                 resolve();
             };
-            
+
             logo.src = 'logo.jpeg';
         });
     } catch (error) {
         console.log('Error loading logo:', error);
     }
-    
+
     // Station header
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text(formData.station.toUpperCase(), pageWidth/2, 60, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.text(formData.address, pageWidth/2, 70, { align: 'center' });
-    
+
     // Receipt details in a structured format
     let yPos = 85;
     const leftMargin = 20;
     const rightMargin = pageWidth - 20;
-    
+
     // Add a line separator
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos - 5, rightMargin, yPos - 5);
-    
+
     // Receipt header
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('FUEL RECEIPT', pageWidth/2, yPos, { align: 'center' });
     yPos += 15;
-    
+
     // Receipt details in two columns
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    
+
     // Left column
     doc.text(`Receipt No: ${formData.receiptNumber}`, leftMargin, yPos);
     doc.text(`Date: ${formatDate(formData.date)}`, leftMargin, yPos + 8);
     doc.text(`Time: ${new Date().toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'})}`, leftMargin, yPos + 16);
     doc.text(`Nozzle: ${formData.nozzleNumber}`, leftMargin, yPos + 24);
-    
+
     // Right column
     doc.text(`CST No: ${formData.cstNumber}`, rightMargin - 60, yPos, { align: 'right' });
     doc.text(`Tel: ${formData.telNumber}`, rightMargin - 60, yPos + 8, { align: 'right' });
     doc.text(`Product: ${formData.product}`, rightMargin - 60, yPos + 16, { align: 'right' });
     doc.text(`Mode: ${formData.paymentMode}`, rightMargin - 60, yPos + 24, { align: 'right' });
-    
+
     yPos += 35;
-    
+
     // Vehicle and customer details
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('VEHICLE DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`Vehicle Type: ${formData.vehicleType}`, leftMargin, yPos);
     doc.text(`Vehicle No: ${formData.vehicleNumber}`, leftMargin, yPos + 8);
     doc.text(`Customer: ${formData.customerName}`, leftMargin, yPos + 16);
-    
+
     yPos += 30;
-    
+
     // Fuel details in a table format
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('FUEL DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     // Add a table-like structure
     const tableY = yPos;
     const col1 = leftMargin;
     const col2 = leftMargin + 80;
     const col3 = rightMargin - 40;
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Item', col1, tableY);
     doc.text('Rate/L', col2, tableY);
     doc.text('Amount', col3, tableY, { align: 'right' });
-    
+
     yPos += 8;
     doc.setLineWidth(0.2);
     doc.line(leftMargin, yPos - 2, rightMargin, yPos - 2);
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`${formData.product}`, col1, yPos);
     doc.text(`₹${formData.ratePerLiter.toFixed(2)}`, col2, yPos);
     doc.text(`₹${formData.amount.toFixed(2)}`, col3, yPos, { align: 'right' });
-    
+
     yPos += 8;
     doc.text(`Volume: ${formData.liters.toFixed(2)} L`, col1, yPos);
-    
+
     yPos += 15;
-    
+
     // Total section
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos, rightMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('TOTAL AMOUNT:', leftMargin, yPos);
     doc.text(`₹${formData.amount.toFixed(2)}`, rightMargin, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Footer
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Thank You! Visit Again', pageWidth/2, yPos, { align: 'center' });
     doc.text('Save Fuel, Save Money', pageWidth/2, yPos + 6, { align: 'center' });
     doc.text('YOU CAN NOW CALL US ON 1800 226344 (TOLL-FREE) FOR QUERIES/COMPLAINTS.', pageWidth/2, yPos + 12, { align: 'center' });
-    
+
     // Add attendant info at bottom
     yPos += 25;
     doc.setFontSize(8);
     doc.text(`Attendant ID: ${formData.attendantId}`, leftMargin, yPos);
     doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, rightMargin, yPos, { align: 'right' });
-    
+
     // Save the PDF
     doc.save(`fuel-receipt-${formData.receiptNumber}.pdf`);
     showMessage('Fuel receipt downloaded successfully!', 'success');
@@ -714,7 +765,7 @@ function updatePreview() {
 // Telecom form data collection
 function getTelecomFormData() {
     const billAmount = parseFloat(document.getElementById('billAmount').value) || 0;
-    
+
     // Return default data even when form is empty
     return {
         serviceProvider: document.getElementById('serviceProvider').value || 'AIRTEL TELECOM',
@@ -862,10 +913,10 @@ function clearFuelForm() {
     document.getElementById('customerName').value = 'N/A';
     document.getElementById('attendantId').value = 'not available';
     document.getElementById('fuelLiters').value = '';
-    
+
     // Generate new random receipt number
     generateRandomReceiptNumber();
-    
+
     // Show preview with default values
     updatePreview();
 }
@@ -877,10 +928,10 @@ function clearTelecomForm() {
     document.getElementById('paymentMode').value = 'Online';
     document.getElementById('gstAmount').value = '';
     document.getElementById('totalAmount').value = '';
-    
+
     // Generate new random bill number
     generateRandomBillNumber();
-    
+
     // Show preview with default values
     updateTelecomPreview();
 }
@@ -897,10 +948,10 @@ function clearCarHireForm() {
     document.getElementById('subtotal').value = '';
     document.getElementById('gstAmount').value = '';
     document.getElementById('totalAmount').value = '';
-    
+
     // Generate new random invoice number
     generateRandomInvoiceNumber();
-    
+
     // Show preview with default values
     updateCarHirePreview();
 }
@@ -915,10 +966,10 @@ function clearTaxFilingForm() {
     document.getElementById('subtotal').value = '';
     document.getElementById('gstAmount').value = '';
     document.getElementById('totalAmount').value = '';
-    
+
     // Generate new random invoice number
     generateRandomTaxInvoiceNumber();
-    
+
     // Show preview with default values
     updateTaxFilingPreview();
 }
@@ -939,93 +990,126 @@ window.clearTaxFilingForm = clearTaxFilingForm;
 window.downloadTaxFilingPreviewPDF = downloadTaxFilingPreviewPDF;
 
 async function downloadSalaryPDF() {
-    if (salaryEntries.length === 0) {
-        showMessage('No salary entries to download!', 'error');
+    const formData = getSalaryFormData();
+    if (!formData || formData.driverName === 'Driver Name') {
+        showMessage('Please fill in the form first before downloading the receipt.', 'error');
         return;
     }
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
-    // Add header
-    doc.setFontSize(20);
+
+    // Set font
+    doc.setFont('helvetica');
+
+    generateSalaryReceiptPDF(doc, formData);
+    doc.save(`driver-salary-receipt-${formData.driverName}-${new Date().toISOString().split('T')[0]}.pdf`);
+}
+
+function generateSalaryReceiptPDF(doc, data) {
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Header
+    doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('Driver Salary Report', 105, 20, { align: 'center' });
-    
+    doc.text('DRIVER SALARY RECEIPT', pageWidth/2, 30, { align: 'center' });
+
+    // Add underline
+    const textWidth = doc.getTextWidth('DRIVER SALARY RECEIPT');
+    doc.setLineWidth(0.5);
+    doc.line((pageWidth - textWidth) / 2, 35, (pageWidth + textWidth) / 2, 35);
+
+    // Receipt text
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
-    
-    // Calculate totals
-    const totalBasicSalary = salaryEntries.reduce((sum, entry) => sum + entry.basicSalary, 0);
-    const totalAllowances = salaryEntries.reduce((sum, entry) => sum + entry.allowances, 0);
-    const totalDeductions = salaryEntries.reduce((sum, entry) => sum + entry.deductions, 0);
-    const totalNetSalary = salaryEntries.reduce((sum, entry) => sum + entry.netSalary, 0);
-    
-    // Add summary
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Summary:', 20, 50);
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Entries: ${salaryEntries.length}`, 20, 60);
-    doc.text(`Total Basic Salary: ₹${totalBasicSalary.toFixed(2)}`, 20, 70);
-    doc.text(`Total Allowances: ₹${totalAllowances.toFixed(2)}`, 20, 80);
-    doc.text(`Total Deductions: ₹${totalDeductions.toFixed(2)}`, 20, 90);
-    doc.text(`Total Net Salary: ₹${totalNetSalary.toFixed(2)}`, 20, 100);
-    
-    // Add entries table
-    let yPosition = 120;
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Date', 20, yPosition);
-    doc.text('Driver', 50, yPosition);
-    doc.text('Basic', 90, yPosition);
-    doc.text('Allowances', 120, yPosition);
-    doc.text('Deductions', 150, yPosition);
-    doc.text('Net', 180, yPosition);
-    
-    yPosition += 10;
-    doc.setFont('helvetica', 'normal');
-    
-    salaryEntries.forEach(entry => {
-        if (yPosition > 250) {
-            doc.addPage();
-            yPosition = 20;
-        }
-        
-        doc.text(formatDate(entry.date), 20, yPosition);
-        doc.text(entry.driverName, 50, yPosition);
-        doc.text(`₹${entry.basicSalary.toFixed(2)}`, 90, yPosition);
-        doc.text(`₹${entry.allowances.toFixed(2)}`, 120, yPosition);
-        doc.text(`₹${entry.deductions.toFixed(2)}`, 150, yPosition);
-        doc.text(`₹${entry.netSalary.toFixed(2)}`, 180, yPosition);
-        
-        yPosition += 8;
+    const receiptText = `Received with thanks from ${data.driverName} INR ₹${data.salaryAmount.toFixed(2)} cash as a remuneration for Driving Car No. ${data.carNumber} for the month of ${data.monthYear}.`;
+
+    // Split text into lines that fit the page width
+    const maxWidth = pageWidth - 40;
+    const lines = doc.splitTextToSize(receiptText, maxWidth);
+    let yPos = 60;
+
+    lines.forEach(line => {
+        doc.text(line, 20, yPos);
+        yPos += 8;
     });
-    
-    // Save the PDF
-    doc.save('driver-salary-report.pdf');
-    showMessage('Driver salary PDF downloaded successfully!', 'success');
+
+    yPos += 20;
+
+    // Details
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Name: ${data.driverName}`, 20, yPos);
+    yPos += 12;
+    doc.text(`DL No: ${data.dlNumber}`, 20, yPos);
+    yPos += 12;
+    doc.text(`Date: ${formatDate(data.receiptDate)}`, 20, yPos);
+
+    yPos += 30;
+
+    // Signature and stamp area
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    // Driver signature
+    doc.text('Sign of Driver', 20, yPos);
+
+    // Add sign image
+    const signImg = new Image();
+    signImg.src = 'sign.jpg';
+    signImg.onload = function() {
+        try {
+            doc.addImage(signImg, 'JPEG', 20, yPos + 5, 60, 30);
+        } catch (e) {
+            console.log('Sign image loading failed:', e);
+        }
+    };
+    signImg.onerror = function() {
+        console.log('Sign image not found');
+    };
+
+    doc.setLineWidth(0.5);
+    doc.line(20, yPos + 40, 100, yPos + 40);
+
+    // Revenue stamp
+    doc.text('Affix Revenue Stamp', pageWidth - 60, yPos);
+
+    // Add revenue stamp image
+    const stampImg = new Image();
+    stampImg.src = 'revenueStamp.jpg';
+    stampImg.onload = function() {
+        try {
+            doc.addImage(stampImg, 'JPEG', pageWidth - 80, yPos + 5, 40, 30);
+        } catch (e) {
+            console.log('Stamp image loading failed:', e);
+        }
+    };
+    stampImg.onerror = function() {
+        console.log('Stamp image not found');
+    };
+
+    doc.rect(pageWidth - 80, yPos + 10, 40, 30);
+    doc.setFontSize(8);
+    doc.text('STAMP', pageWidth - 60, yPos + 25, { align: 'center' });
 }
 
 async function downloadTelecomPreviewPDF() {
     const formData = getTelecomFormData();
     if (!formData) return;
-    
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     // Set page dimensions
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    
+
     try {
         // Add logo with better error handling
         const logo = new Image();
         logo.crossOrigin = 'anonymous';
-        
+
         await new Promise((resolve, reject) => {
             logo.onload = () => {
                 try {
@@ -1034,14 +1118,14 @@ async function downloadTelecomPreviewPDF() {
                     const maxHeight = 35;
                     let logoWidth = logo.width;
                     let logoHeight = logo.height;
-                    
+
                     // Scale down if too large
                     if (logoWidth > maxWidth || logoHeight > maxHeight) {
                         const ratio = Math.min(maxWidth / logoWidth, maxHeight / logoHeight);
                         logoWidth *= ratio;
                         logoHeight *= ratio;
                     }
-                    
+
                     // Center the logo above the service provider name
                     const logoX = 25;
                     const logoY = 15;
@@ -1056,130 +1140,130 @@ async function downloadTelecomPreviewPDF() {
                 console.log('Logo not found or CORS blocked, continuing without logo');
                 resolve();
             };
-            
+
             logo.src = 'logo.jpeg';
         });
     } catch (error) {
         console.log('Error loading logo:', error);
     }
-    
+
     // Service provider header
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text(formData.serviceProvider.toUpperCase(), pageWidth/2, 60, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.text(formData.providerAddress, pageWidth/2, 70, { align: 'center' });
-    
+
     // Bill details in a structured format
     let yPos = 85;
     const leftMargin = 20;
     const rightMargin = pageWidth - 20;
-    
+
     // Add a line separator
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos - 5, rightMargin, yPos - 5);
-    
+
     // Bill header
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('TELECOM BILL', pageWidth/2, yPos, { align: 'center' });
     yPos += 15;
-    
+
     // Bill details in two columns
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    
+
     // Left column
     doc.text(`Bill No: ${formData.billNumber}`, leftMargin, yPos);
     doc.text(`Account No: ${formData.accountNumber}`, leftMargin, yPos + 8);
     doc.text(`Service Type: ${formData.serviceType}`, leftMargin, yPos + 16);
     doc.text(`Plan Name: ${formData.planName}`, leftMargin, yPos + 24);
-    
+
     // Right column
     doc.text(`GST No: ${formData.gstNumber}`, rightMargin - 60, yPos, { align: 'right' });
     doc.text(`Contact: ${formData.contactNumber}`, rightMargin - 60, yPos + 8, { align: 'right' });
     doc.text(`Due Date: ${formatDate(formData.dueDate)}`, rightMargin - 60, yPos + 16, { align: 'right' });
     doc.text(`Payment Mode: ${formData.paymentMode}`, rightMargin - 60, yPos + 24, { align: 'right' });
-    
+
     yPos += 35;
-    
+
     // Customer details
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('CUSTOMER DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`Customer Name: ${formData.customerName}`, leftMargin, yPos);
     doc.text(`Customer Address: ${formData.customerAddress}`, leftMargin, yPos + 8);
     doc.text(`Billing Period: ${formData.billingPeriod}`, leftMargin, yPos + 16);
-    
+
     yPos += 30;
-    
+
     // Bill details in a table format
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('BILL DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     // Add a table-like structure
     const tableY = yPos;
     const col1 = leftMargin;
     const col2 = leftMargin + 80;
     const col3 = rightMargin - 40;
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Item', col1, tableY);
     doc.text('Amount', col2, tableY);
     doc.text('Total', col3, tableY, { align: 'right' });
-    
+
     yPos += 8;
     doc.setLineWidth(0.2);
     doc.line(leftMargin, yPos - 2, rightMargin, yPos - 2);
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`${formData.serviceType} Service`, col1, yPos);
     doc.text(`₹${formData.billAmount.toFixed(2)}`, col2, yPos);
     doc.text(`₹${formData.billAmount.toFixed(2)}`, col3, yPos, { align: 'right' });
-    
+
     yPos += 8;
     doc.text(`GST (18%)`, col1, yPos);
     doc.text(`₹${formData.gstAmount.toFixed(2)}`, col2, yPos);
     doc.text(`₹${formData.gstAmount.toFixed(2)}`, col3, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Total section
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos, rightMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('TOTAL AMOUNT:', leftMargin, yPos);
     doc.text(`₹${formData.totalAmount.toFixed(2)}`, rightMargin, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Footer
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Thank You! Visit Again', pageWidth/2, yPos, { align: 'center' });
     doc.text(`For queries call: ${formData.contactNumber}`, pageWidth/2, yPos + 6, { align: 'center' });
     doc.text('Pay before due date to avoid late fees', pageWidth/2, yPos + 12, { align: 'center' });
-    
+
     // Add generation info at bottom
     yPos += 25;
     doc.setFontSize(8);
     doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, leftMargin, yPos);
     doc.text(`Due Date: ${formatDate(formData.dueDate)}`, rightMargin, yPos, { align: 'right' });
-    
+
     // Save the PDF
     doc.save(`telecom-bill-${formData.billNumber}.pdf`);
     showMessage('Telecom bill downloaded successfully!', 'success');
@@ -1188,19 +1272,19 @@ async function downloadTelecomPreviewPDF() {
 async function downloadCarHirePreviewPDF() {
     const formData = getCarHireFormData();
     if (!formData) return;
-    
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     // Set page dimensions
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    
+
     try {
         // Add logo with better error handling
         const logo = new Image();
         logo.crossOrigin = 'anonymous';
-        
+
         await new Promise((resolve, reject) => {
             logo.onload = () => {
                 try {
@@ -1209,14 +1293,14 @@ async function downloadCarHirePreviewPDF() {
                     const maxHeight = 35;
                     let logoWidth = logo.width;
                     let logoHeight = logo.height;
-                    
+
                     // Scale down if too large
                     if (logoWidth > maxWidth || logoHeight > maxHeight) {
                         const ratio = Math.min(maxWidth / logoWidth, maxHeight / logoHeight);
                         logoWidth *= ratio;
                         logoHeight *= ratio;
                     }
-                    
+
                     // Center the logo above the rental company name
                     const logoX = 25;
                     const logoY = 15;
@@ -1231,133 +1315,133 @@ async function downloadCarHirePreviewPDF() {
                 console.log('Logo not found or CORS blocked, continuing without logo');
                 resolve();
             };
-            
+
             logo.src = 'logo.jpeg';
         });
     } catch (error) {
         console.log('Error loading logo:', error);
     }
-    
+
     // Rental company header
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text(formData.rentalCompany.toUpperCase(), pageWidth/2, 60, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.text(formData.companyAddress, pageWidth/2, 70, { align: 'center' });
-    
+
     // Invoice details in a structured format
     let yPos = 85;
     const leftMargin = 20;
     const rightMargin = pageWidth - 20;
-    
+
     // Add a line separator
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos - 5, rightMargin, yPos - 5);
-    
+
     // Invoice header
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('CAR HIRE INVOICE', pageWidth/2, yPos, { align: 'center' });
     yPos += 15;
-    
+
     // Invoice details in two columns
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    
+
     // Left column
     doc.text(`Invoice No: ${formData.invoiceNumber}`, leftMargin, yPos);
     doc.text(`Vehicle No: ${formData.vehicleNumber}`, leftMargin, yPos + 8);
     doc.text(`Vehicle Model: ${formData.vehicleModel}`, leftMargin, yPos + 16);
     doc.text(`Vehicle Type: ${formData.vehicleType}`, leftMargin, yPos + 24);
-    
+
     // Right column
     doc.text(`GST No: ${formData.gstNumber}`, rightMargin - 60, yPos, { align: 'right' });
     doc.text(`Contact: ${formData.contactNumber}`, rightMargin - 60, yPos + 8, { align: 'right' });
     doc.text(`Rental Date: ${formatDate(formData.rentalDate)}`, rightMargin - 60, yPos + 16, { align: 'right' });
     doc.text(`Return Date: ${formatDate(formData.returnDate)}`, rightMargin - 60, yPos + 24, { align: 'right' });
-    
+
     yPos += 35;
-    
+
     // Customer details
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('CUSTOMER DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`Customer Name: ${formData.customerName}`, leftMargin, yPos);
     doc.text(`Customer Address: ${formData.customerAddress}`, leftMargin, yPos + 8);
     doc.text(`Driver Name: ${formData.driverName}`, leftMargin, yPos + 16);
     doc.text(`License No: ${formData.licenseNumber}`, leftMargin, yPos + 24);
-    
+
     yPos += 30;
-    
+
     // Rental details in a table format
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('RENTAL DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     // Add a table-like structure
     const tableY = yPos;
     const col1 = leftMargin;
     const col2 = leftMargin + 80;
     const col3 = leftMargin + 120; // Added for Days
     const col4 = rightMargin - 40; // Added for Amount
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Item', col1, tableY);
     doc.text('Rate/Day', col2, tableY);
     doc.text('Days', col3, tableY);
     doc.text('Amount', col4, tableY, { align: 'right' });
-    
+
     yPos += 8;
     doc.setLineWidth(0.2);
     doc.line(leftMargin, yPos - 2, rightMargin, yPos - 2);
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`${formData.vehicleType} Rental`, col1, yPos);
     doc.text(`₹${formData.dailyRate.toFixed(2)}`, col2, yPos);
     doc.text(`${formData.numberOfDays}`, col3, yPos);
     doc.text(`₹${formData.subtotal.toFixed(2)}`, col4, yPos, { align: 'right' });
-    
+
     yPos += 8;
     doc.text(`GST (18%)`, col1, yPos);
     doc.text(`₹${formData.gstAmount.toFixed(2)}`, col4, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Total section
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos, rightMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('TOTAL AMOUNT:', leftMargin, yPos);
     doc.text(`₹${formData.totalAmount.toFixed(2)}`, rightMargin, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Footer
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Thank You! Visit Again', pageWidth/2, yPos, { align: 'center' });
     doc.text(`For queries call: ${formData.contactNumber}`, pageWidth/2, yPos + 6, { align: 'center' });
     doc.text('Safe driving! Return vehicle in good condition', pageWidth/2, yPos + 12, { align: 'center' });
-    
+
     // Add generation info at bottom
     yPos += 25;
     doc.setFontSize(8);
     doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, leftMargin, yPos);
     doc.text(`Payment Mode: ${formData.paymentMode}`, rightMargin, yPos, { align: 'right' });
-    
+
     // Save the PDF
     doc.save(`car-hire-invoice-${formData.invoiceNumber}.pdf`);
     showMessage('Car hire invoice downloaded successfully!', 'success');
@@ -1366,19 +1450,19 @@ async function downloadCarHirePreviewPDF() {
 async function downloadTaxFilingPreviewPDF() {
     const formData = getTaxFilingFormData();
     if (!formData) return;
-    
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     // Set page dimensions
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    
+
     try {
         // Add logo with better error handling
         const logo = new Image();
         logo.crossOrigin = 'anonymous';
-        
+
         await new Promise((resolve, reject) => {
             logo.onload = () => {
                 try {
@@ -1387,14 +1471,14 @@ async function downloadTaxFilingPreviewPDF() {
                     const maxHeight = 35;
                     let logoWidth = logo.width;
                     let logoHeight = logo.height;
-                    
+
                     // Scale down if too large
                     if (logoWidth > maxWidth || logoHeight > maxHeight) {
                         const ratio = Math.min(maxWidth / logoWidth, maxHeight / logoHeight);
                         logoWidth *= ratio;
                         logoHeight *= ratio;
                     }
-                    
+
                     // Center the logo above the consultant name
                     const logoX = 25;
                     const logoY = 15;
@@ -1409,133 +1493,133 @@ async function downloadTaxFilingPreviewPDF() {
                 console.log('Logo not found or CORS blocked, continuing without logo');
                 resolve();
             };
-            
+
             logo.src = 'logo.jpeg';
         });
     } catch (error) {
         console.log('Error loading logo:', error);
     }
-    
+
     // Consultant header
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text(formData.consultantName.toUpperCase(), pageWidth/2, 60, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.text(formData.consultantAddress, pageWidth/2, 70, { align: 'center' });
-    
+
     // Invoice details in a structured format
     let yPos = 85;
     const leftMargin = 20;
     const rightMargin = pageWidth - 20;
-    
+
     // Add a line separator
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos - 5, rightMargin, yPos - 5);
-    
+
     // Invoice header
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('TAX CONSULTATION INVOICE', pageWidth/2, yPos, { align: 'center' });
     yPos += 15;
-    
+
     // Invoice details in two columns
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    
+
     // Left column
     doc.text(`Invoice No: ${formData.invoiceNumber}`, leftMargin, yPos);
     doc.text(`Service Date: ${formatDate(formData.serviceDate)}`, leftMargin, yPos + 8);
     doc.text(`Service Type: ${formData.serviceType}`, leftMargin, yPos + 16);
     doc.text(`Assessment Year: ${formData.assessmentYear}`, leftMargin, yPos + 24);
-    
+
     // Right column
     doc.text(`GST No: ${formData.gstNumber}`, rightMargin - 60, yPos, { align: 'right' });
     doc.text(`Contact: ${formData.contactNumber}`, rightMargin - 60, yPos + 8, { align: 'right' });
     doc.text(`Hours: ${formData.consultationHours}`, rightMargin - 60, yPos + 16, { align: 'right' });
     doc.text(`Rate/Hour: ₹${formData.hourlyRate.toFixed(2)}`, rightMargin - 60, yPos + 24, { align: 'right' });
-    
+
     yPos += 35;
-    
+
     // Client details
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('CLIENT DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`Client Name: ${formData.clientName}`, leftMargin, yPos);
     doc.text(`Client Address: ${formData.clientAddress}`, leftMargin, yPos + 8);
     doc.text(`PAN Number: ${formData.panNumber}`, leftMargin, yPos + 16);
     doc.text(`Aadhar Number: ${formData.aadharNumber}`, leftMargin, yPos + 24);
-    
+
     yPos += 30;
-    
+
     // Service details in a table format
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('SERVICE DETAILS:', leftMargin, yPos);
     yPos += 8;
-    
+
     // Add a table-like structure
     const tableY = yPos;
     const col1 = leftMargin;
     const col2 = leftMargin + 80;
     const col3 = leftMargin + 120; // Added for Hours
     const col4 = rightMargin - 40; // Added for Amount
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Item', col1, tableY);
     doc.text('Hours', col2, tableY);
     doc.text('Rate/Hour', col3, tableY);
     doc.text('Amount', col4, tableY, { align: 'right' });
-    
+
     yPos += 8;
     doc.setLineWidth(0.2);
     doc.line(leftMargin, yPos - 2, rightMargin, yPos - 2);
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`${formData.serviceType}`, col1, yPos);
     doc.text(`${formData.consultationHours}`, col2, yPos);
     doc.text(`₹${formData.hourlyRate.toFixed(2)}`, col3, yPos);
     doc.text(`₹${formData.subtotal.toFixed(2)}`, col4, yPos, { align: 'right' });
-    
+
     yPos += 8;
     doc.text(`GST (18%)`, col1, yPos);
     doc.text(`₹${formData.gstAmount.toFixed(2)}`, col4, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Total section
     doc.setLineWidth(0.5);
     doc.line(leftMargin, yPos, rightMargin, yPos);
     yPos += 8;
-    
+
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('TOTAL AMOUNT:', leftMargin, yPos);
     doc.text(`₹${formData.totalAmount.toFixed(2)}`, rightMargin, yPos, { align: 'right' });
-    
+
     yPos += 15;
-    
+
     // Footer
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Thank You! Visit Again', pageWidth/2, yPos, { align: 'center' });
     doc.text(`For queries call: ${formData.contactNumber}`, pageWidth/2, yPos + 6, { align: 'center' });
     doc.text('Professional tax services with complete confidentiality', pageWidth/2, yPos + 12, { align: 'center' });
-    
+
     // Add generation info at bottom
     yPos += 25;
     doc.setFontSize(8);
     doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, leftMargin, yPos);
     doc.text(`Payment Mode: ${formData.paymentMode}`, rightMargin, yPos, { align: 'right' });
-    
+
     // Save the PDF
     doc.save(`tax-consultation-invoice-${formData.invoiceNumber}.pdf`);
     showMessage('Tax consultation invoice downloaded successfully!', 'success');
@@ -1547,7 +1631,7 @@ function calculateTelecomAmounts() {
     const gstRate = 0.18; // 18% GST
     const gstAmount = billAmount * gstRate;
     const totalAmount = billAmount + gstAmount;
-    
+
     document.getElementById('gstAmount').value = gstAmount.toFixed(2);
     document.getElementById('totalAmount').value = totalAmount.toFixed(2);
 }
@@ -1557,12 +1641,12 @@ function getCarHireFormData() {
     const rentalDate = new Date(document.getElementById('rentalDate').value);
     const returnDate = new Date(document.getElementById('returnDate').value);
     const dailyRate = parseFloat(document.getElementById('dailyRate').value) || 0;
-    
+
     let numberOfDays = 0;
     let subtotal = 0;
     let gstAmount = 0;
     let totalAmount = 0;
-    
+
     if (rentalDate && returnDate && returnDate >= rentalDate) {
         const timeDiff = returnDate.getTime() - rentalDate.getTime();
         numberOfDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
@@ -1570,7 +1654,7 @@ function getCarHireFormData() {
         gstAmount = subtotal * 0.18;
         totalAmount = subtotal + gstAmount;
     }
-    
+
     // Return default data even when form is empty
     return {
         rentalCompany: document.getElementById('rentalCompany').value || 'PREMIUM CAR RENTALS',
@@ -1723,18 +1807,18 @@ function calculateCarHireAmounts() {
     const rentalDate = new Date(document.getElementById('rentalDate').value);
     const returnDate = new Date(document.getElementById('returnDate').value);
     const dailyRate = parseFloat(document.getElementById('dailyRate').value) || 0;
-    
+
     if (rentalDate && returnDate && returnDate >= rentalDate) {
         const timeDiff = returnDate.getTime() - rentalDate.getTime();
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end day
-        
+
         document.getElementById('numberOfDays').value = daysDiff;
-        
+
         const subtotal = daysDiff * dailyRate;
         const gstRate = 0.18; // 18% GST
         const gstAmount = subtotal * gstRate;
         const totalAmount = subtotal + gstAmount;
-        
+
         document.getElementById('subtotal').value = subtotal.toFixed(2);
         document.getElementById('gstAmount').value = gstAmount.toFixed(2);
         document.getElementById('totalAmount').value = totalAmount.toFixed(2);
@@ -1750,11 +1834,11 @@ function calculateCarHireAmounts() {
 function getTaxFilingFormData() {
     const consultationHours = parseFloat(document.getElementById('consultationHours').value) || 0;
     const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
-    
+
     const subtotal = consultationHours * hourlyRate;
     const gstAmount = subtotal * 0.18;
     const totalAmount = subtotal + gstAmount;
-    
+
     // Return default data even when form is empty
     return {
         consultantName: document.getElementById('consultantName').value || 'ABC TAX CONSULTANTS',
@@ -1905,12 +1989,12 @@ function generateTaxFilingBillPreview(data) {
 function calculateTaxFilingAmounts() {
     const consultationHours = parseFloat(document.getElementById('consultationHours').value) || 0;
     const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
-    
+
     const subtotal = consultationHours * hourlyRate;
     const gstRate = 0.18; // 18% GST
     const gstAmount = subtotal * gstRate;
     const totalAmount = subtotal + gstAmount;
-    
+
     document.getElementById('subtotal').value = subtotal.toFixed(2);
     document.getElementById('gstAmount').value = gstAmount.toFixed(2);
     document.getElementById('totalAmount').value = totalAmount.toFixed(2);
@@ -1920,10 +2004,10 @@ function calculateTaxFilingAmounts() {
 function getTaxCalculatorFormData() {
     const taxableIncome = parseFloat(document.getElementById('taxableIncome').value) || 0;
     const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
-    
+
     const taxAmount = taxableIncome * taxRate;
     const netIncome = taxableIncome - taxAmount;
-    
+
     return {
         taxableIncome: taxableIncome.toFixed(2),
         taxRate: taxRate.toFixed(2),
@@ -1957,7 +2041,7 @@ function toggleTaxSections() {
     const taxType = document.getElementById('taxType').value;
     const incomeTaxSection = document.getElementById('incomeTaxSection');
     const gstSection = document.getElementById('gstSection');
-    
+
     if (taxType === 'income-tax') {
         incomeTaxSection.style.display = 'block';
         gstSection.style.display = 'none';
@@ -1974,7 +2058,7 @@ function toggleTaxSections() {
 function calculateTax() {
     const taxType = document.getElementById('taxType').value;
     let results = {};
-    
+
     if (taxType === 'income-tax') {
         results = calculateIncomeTax();
     } else if (taxType === 'gst') {
@@ -1984,7 +2068,7 @@ function calculateTax() {
     } else if (taxType === 'property-tax') {
         results = calculatePropertyTax();
     }
-    
+
     displayTaxResults(results);
 }
 
@@ -1996,7 +2080,7 @@ function calculateIncomeTax() {
     const bonus = parseFloat(document.getElementById('bonus').value) || 0;
     const rentIncome = parseFloat(document.getElementById('rentIncome').value) || 0;
     const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
-    
+
     // Deductions
     const pfContribution = parseFloat(document.getElementById('pfContribution').value) || 0;
     const insurance = parseFloat(document.getElementById('insurance').value) || 0;
@@ -2004,20 +2088,20 @@ function calculateIncomeTax() {
     const homeLoan = parseFloat(document.getElementById('homeLoan').value) || 0;
     const elss = parseFloat(document.getElementById('elss').value) || 0;
     const medicalInsurance = parseFloat(document.getElementById('medicalInsurance').value) || 0;
-    
+
     // Calculate gross income
     const grossIncome = basicSalary + hra + allowances + bonus + rentIncome + otherIncome;
-    
+
     // Calculate total deductions
     const totalDeductions = Math.min(pfContribution + insurance + nps + homeLoan + elss + medicalInsurance, 150000);
-    
+
     // Calculate taxable income
     const taxableIncome = Math.max(grossIncome - totalDeductions - 50000, 0); // Standard deduction of 50,000
-    
+
     // Calculate tax based on slabs (2024-25)
     let taxAmount = 0;
     let taxBreakdown = [];
-    
+
     if (taxableIncome <= 300000) {
         taxAmount = 0;
         taxBreakdown.push({ slab: '0 - 3,00,000', rate: '0%', amount: 0 });
@@ -2053,11 +2137,11 @@ function calculateIncomeTax() {
         taxBreakdown.push({ slab: '12,00,001 - 15,00,000', rate: '20%', amount: 60000 });
         taxBreakdown.push({ slab: 'Above 15,00,000', rate: '30%', amount: (taxableIncome - 1500000) * 0.30 });
     }
-    
+
     // Add cess
     const cess = taxAmount * 0.04;
     const totalTax = taxAmount + cess;
-    
+
     return {
         type: 'Income Tax',
         grossIncome: grossIncome.toFixed(2),
@@ -2076,10 +2160,10 @@ function calculateIncomeTax() {
 function calculateGST() {
     const amount = parseFloat(document.getElementById('gstAmount').value) || 0;
     const rate = parseFloat(document.getElementById('gstRate').value) || 0;
-    
+
     const gstAmount = amount * (rate / 100);
     const totalAmount = amount + gstAmount;
-    
+
     return {
         type: 'GST',
         baseAmount: amount.toFixed(2),
@@ -2254,10 +2338,10 @@ function downloadTaxCalculationPDF() {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     // Set font
     doc.setFont('helvetica');
-    
+
     // Add logo
     const logoImg = new Image();
     logoImg.src = 'logo.jpeg';
@@ -2267,11 +2351,11 @@ function downloadTaxCalculationPDF() {
         } catch (e) {
             console.log('Logo loading failed:', e);
         }
-        
+
         // Add content
         const taxType = document.getElementById('taxType').value;
         const assessmentYear = document.getElementById('assessmentYear').value;
-        
+
         if (taxType === 'income-tax') {
             generateIncomeTaxPDF(doc, assessmentYear);
         } else if (taxType === 'gst') {
@@ -2279,16 +2363,16 @@ function downloadTaxCalculationPDF() {
         } else {
             generateGenericTaxPDF(doc, taxType);
         }
-        
+
         // Save PDF
         doc.save(`tax-calculation-${taxType}-${new Date().toISOString().split('T')[0]}.pdf`);
     };
-    
+
     logoImg.onerror = function() {
         // Continue without logo if it fails to load
         const taxType = document.getElementById('taxType').value;
         const assessmentYear = document.getElementById('assessmentYear').value;
-        
+
         if (taxType === 'income-tax') {
             generateIncomeTaxPDF(doc, assessmentYear);
         } else if (taxType === 'gst') {
@@ -2296,7 +2380,7 @@ function downloadTaxCalculationPDF() {
         } else {
             generateGenericTaxPDF(doc, taxType);
         }
-        
+
         doc.save(`tax-calculation-${taxType}-${new Date().toISOString().split('T')[0]}.pdf`);
     };
 }
@@ -2304,27 +2388,27 @@ function downloadTaxCalculationPDF() {
 // Generate Income Tax PDF
 function generateIncomeTaxPDF(doc, assessmentYear) {
     const results = calculateIncomeTax();
-    
+
     // Header
     doc.setFontSize(18);
     doc.text('INCOME TAX CALCULATION', 105, 50, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text(`Assessment Year: ${assessmentYear}`, 105, 60, { align: 'center' });
-    
+
     // Income breakdown
     doc.setFontSize(14);
     doc.text('INCOME BREAKDOWN:', 20, 80);
-    
+
     doc.setFontSize(12);
     doc.text(`Gross Income: ₹${results.grossIncome}`, 20, 90);
     doc.text(`Total Deductions: ₹${results.totalDeductions}`, 20, 100);
     doc.text(`Taxable Income: ₹${results.taxableIncome}`, 20, 110);
-    
+
     // Tax breakdown
     doc.setFontSize(14);
     doc.text('TAX BREAKDOWN:', 20, 130);
-    
+
     let yPos = 140;
     results.taxBreakdown.forEach((slab, index) => {
         if (slab.amount > 0 || index === 0) {
@@ -2333,16 +2417,16 @@ function generateIncomeTaxPDF(doc, assessmentYear) {
             yPos += 8;
         }
     });
-    
+
     // Total tax
     doc.setFontSize(14);
     doc.text('TOTAL TAX:', 20, yPos + 10);
-    
+
     doc.setFontSize(12);
     doc.text(`Basic Tax: ₹${results.taxAmount}`, 20, yPos + 20);
     doc.text(`Health & Education Cess (4%): ₹${results.cess}`, 20, yPos + 30);
     doc.text(`TOTAL TAX: ₹${results.totalTax}`, 20, yPos + 40);
-    
+
     // Footer
     doc.setFontSize(10);
     doc.text(`Effective Tax Rate: ${results.effectiveRate}%`, 20, yPos + 55);
@@ -2353,26 +2437,26 @@ function generateIncomeTaxPDF(doc, assessmentYear) {
 // Generate GST PDF
 function generateGSTPDF(doc) {
     const results = calculateGST();
-    
+
     // Header
     doc.setFontSize(18);
     doc.text('GST CALCULATION', 105, 50, { align: 'center' });
-    
+
     // GST details
     doc.setFontSize(14);
     doc.text('GST DETAILS:', 20, 80);
-    
+
     doc.setFontSize(12);
     doc.text(`Base Amount: ₹${results.baseAmount}`, 20, 95);
     doc.text(`GST Rate: ${results.gstRate}%`, 20, 105);
     doc.text(`GST Amount: ₹${results.gstAmount}`, 20, 115);
-    
+
     // Total
     doc.setFontSize(14);
     doc.text('TOTAL AMOUNT:', 20, 135);
     doc.setFontSize(12);
     doc.text(`₹${results.totalAmount}`, 20, 145);
-    
+
     // Footer
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 20, 160);
@@ -2382,7 +2466,7 @@ function generateGSTPDF(doc) {
 function generateGenericTaxPDF(doc, taxType) {
     doc.setFontSize(18);
     doc.text(`${taxType.toUpperCase()} CALCULATION`, 105, 50, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text('This calculation will be implemented based on specific requirements.', 20, 80);
     doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 20, 100);
